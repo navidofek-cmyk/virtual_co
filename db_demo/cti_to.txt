@@ -1,0 +1,4 @@
+
+Resume this session with:
+claude --resume 66c82e6e-ada1-4167-81ed-479d19d6d8da
+ivand@n1:~/projects/savanah_ai/db_demo$

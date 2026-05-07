@@ -1,0 +1,21 @@
+# Komunikace a chat history
+chat_history/
+*.vtt
+GMT*.transcript.*
+
+# Python
+__pycache__/
+*.py[oc]
+.venv/
+build/
+dist/
+*.egg-info
+
+# Secrets
+config.json
+.env
+*.key
+
+# IDE
+.idea/
+.vscode/
