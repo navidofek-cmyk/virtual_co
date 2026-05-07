@@ -1,50 +1,50 @@
 # Virtual Co – Private AI Agent Platform
 
-Bezpečná multi-tenant platforma pro AI agenty v enterprise prostředí.
-Ukazuje jak správně implementovat access control **před** tím, než LLM dostane data.
+A secure multi-tenant platform for AI agents in enterprise environments.
+Demonstrates how to properly implement access control **before** the LLM receives any data.
 
 ---
 
-## Co to je
+## What is it
 
-Firmy chtějí AI, ale bojí se dat. Tato platforma zajistí, že každý zaměstnanec vidí přesně ta data, na která má právo — nic víc.
+Companies want AI, but fear data exposure. This platform ensures every employee sees exactly the data they are authorized to see — nothing more.
 
 ```
-Přepážková paní → vidí jen své klienty
-Manažer pobočky → vidí celou pobočku
-Risk analytik   → vidí vše, ale bez jmen klientů
-HR              → vidí zaměstnance, ne transakce
+Bank teller      → sees only their own clients
+Branch manager   → sees the entire branch
+Risk analyst     → sees everything, but without client names
+HR               → sees employees, not transactions
 ```
 
 ---
 
-## Architektura
+## Architecture
 
 ```
-Uživatel
+User
     ↓
 CLI / Browser
     ↓
-FastAPI  (auth → RBAC → filtrování dat)
+FastAPI  (auth → RBAC → data filtering)
     ↓
-Agent smyčka  (Claude rozhoduje které nástroje zavolat)
+Agent loop  (Claude decides which tools to call)
     ↓
-claude -p  (Max subscription, bez API klíče)
+claude -p  (Max subscription, no API key required)
     ↓
-Odpověď uložena do DB (conversations + agent_runs)
+Response saved to DB (conversations + agent_runs)
 ```
 
 ---
 
-## Rychlý start
+## Quick Start
 
-### Požadavky
+### Requirements
 - Docker
 - Python 3.12+
 - [uv](https://github.com/astral-sh/uv)
 - Claude Code CLI
 
-### 1. Spusť databázi
+### 1. Start the database
 ```bash
 docker run --name virtual-co-db \
   -e POSTGRES_PASSWORD=savanah123 \
@@ -52,27 +52,29 @@ docker run --name virtual-co-db \
   -p 5432:5432 -d postgres:16
 ```
 
-### 2. Vytvoř schéma a seed data
+### 2. Create schema and seed data
 ```bash
 docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/schema.sql
+docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/schema_banking.sql
 docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/seed_banka_morava.sql
 docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/seed_rozsireni.sql
 docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/seed_praha.sql
+docker exec -i virtual-co-db psql -U postgres -d savanah < db_demo/seed_banking.sql
 ```
 
-### 3. Spusť API
+### 3. Start the API
 ```bash
 cd api
 uv sync
-uv run uvicorn main:app --port 8000
+uv run python -m uvicorn main:app --port 8000
 ```
 
-### 4. Spusť CLI klienta
+### 4. Run the CLI client
 ```bash
 uv run python cli.py
 ```
 
-### 5. Nebo spusť agenta s nástroji
+### 5. Or run the agent with tools
 ```bash
 uv run python agent.py
 ```
@@ -81,126 +83,128 @@ uv run python agent.py
 
 ## Demo – Banka Morava a.s.
 
-21 zaměstnanců, 5 poboček, 11 rolí.
+21 employees, 5 branches, 11 roles, 10 clients, real transactions and loans.
 
 ---
 
-### Kdo má přístup kam
+### Who has access to what
 
-> 🟢 plný přístup &nbsp; 🟡 částečný / maskovaný &nbsp; 🔴 zakázáno
+> 🟢 full access &nbsp; 🟡 partial / masked &nbsp; 🔴 denied
 
-| Role | Klienti | Účty | Transakce | Úvěry | HR | Finance | Audit |
+| Role | Clients | Accounts | Transactions | Loans | HR | Finance | Audit |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **TELLER** | 🟡 vlastní | 🟡 maskovaně | 🟡 omezeno | 🔴 | 🔴 | 🔴 | 🔴 |
-| **BRANCH_MANAGER** | 🟡 pobočka | 🟢 pobočka | 🟢 pobočka | 🔴 | 🔴 | 🟡 pobočka | 🔴 |
+| **TELLER** | 🟡 own | 🟡 masked | 🟡 limited | 🔴 | 🔴 | 🔴 | 🔴 |
+| **BRANCH_MANAGER** | 🟡 branch | 🟢 branch | 🟢 branch | 🔴 | 🔴 | 🟡 branch | 🔴 |
 | **REGIONAL_DIRECTOR** | 🟡 region | 🟢 region | 🟢 region | 🔴 | 🔴 | 🟡 region | 🔴 |
-| **RISK_MANAGER** | 🔴 bez PII | 🟡 bez PII | 🟢 bez PII | 🟢 scoring | 🔴 | 🔴 | 🔴 |
-| **COMPLIANCE_OFFICER** | 🟡 KYC/AML | 🔴 | 🟡 podezřelé | 🔴 | 🔴 | 🔴 | 🟢 |
-| **HR_MANAGER** | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 vše | 🔴 | 🔴 |
-| **HR_STAFF** | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 bez mezd | 🔴 | 🔴 |
-| **CFO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 vše | 🔴 |
-| **CEO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 agregát | 🔴 |
-| **ADMIN** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 systém |
+| **RISK_MANAGER** | 🔴 no PII | 🟡 no PII | 🟢 no PII | 🟢 scoring | 🔴 | 🔴 | 🔴 |
+| **COMPLIANCE_OFFICER** | 🟡 KYC/AML | 🔴 | 🟡 suspicious | 🔴 | 🔴 | 🔴 | 🟢 |
+| **HR_MANAGER** | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 full | 🔴 | 🔴 |
+| **HR_STAFF** | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 no salary | 🔴 | 🔴 |
+| **CFO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 full | 🔴 |
+| **CEO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 aggregate | 🔴 |
+| **ADMIN** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 system |
 
 ---
 
-### Co přesně každá role vidí
+### What each role can see
 
 **TELLER** (Jana Nováková, Karel Dvořák)
-- ✅ Základní info o svých přidělených klientech
-- ✅ Stav účtu maskovaně (číslo účtu skryto)
-- ✅ Transakce pouze svých klientů
-- ❌ Rodné číslo, celá transakční historie, jiní klienti
+- ✅ Basic info about their assigned clients
+- ✅ Account status (masked account number)
+- ✅ Transactions of their own clients only
+- ❌ National ID, full transaction history, other clients
 
 **BRANCH_MANAGER** (Lucie Svobodová – Brno)
-- ✅ Všichni klienti své pobočky
-- ✅ Přehledy a reporty celé pobočky
-- ✅ Výkon svého týmu
-- ❌ Jiné pobočky, HR záznamy, mzdy
+- ✅ All clients in their branch
+- ✅ Branch reports and analytics
+- ✅ Team performance overview
+- ❌ Other branches, HR records, salaries
 
 **REGIONAL_DIRECTOR** (Pavel Horák – Morava)
-- ✅ Agregované přehledy celého regionu
-- ✅ Výkon všech poboček v regionu
-- ❌ Detailní data klientů, jiný region
+- ✅ Aggregated reports for the entire region
+- ✅ Performance of all branches in the region
+- ❌ Detailed client data, other regions
 
 **RISK_MANAGER** (Tomáš Veselý)
-- ✅ Všechny transakce celé banky
-- ✅ Fraud score, rizikové profily, scoring úvěrů
-- ❌ Jméno klienta, číslo účtu, IBAN (vše maskováno)
+- ✅ All transactions across the bank
+- ✅ Fraud scores, risk profiles, loan scoring
+- ❌ Client name, account number, IBAN (all masked)
 
 **COMPLIANCE_OFFICER** (Alena Marková)
-- ✅ KYC/AML status klientů
-- ✅ Podezřelé transakce pro AML
-- ✅ Plný přístup k audit logům
-- ❌ Běžné transakce, zůstatky
+- ✅ KYC/AML client status
+- ✅ Suspicious transactions for AML
+- ✅ Full access to audit logs
+- ❌ Regular transactions, balances
 
 **HR_MANAGER** (Jana Procházková)
-- ✅ Kompletní záznamy všech zaměstnanců včetně mezd
-- ❌ Jakákoliv klientská nebo finanční data
+- ✅ Complete employee records including salaries
+- ❌ Any client or financial data
 
 **HR_STAFF** (Marie Kratochvílová)
-- ✅ Základní HR záznamy, docházka, kontakty
-- ❌ Mzdy, bonusy, hodnocení výkonu
+- ✅ Basic HR records, attendance, contact info
+- ❌ Salaries, bonuses, performance ratings
 
 **CFO** (Martin Novák)
-- ✅ Finanční výsledky celé banky, všechny pobočky
-- ❌ Osobní data klientů ani zaměstnanců
+- ✅ Financial results for the entire bank, all branches
+- ❌ Personal client or employee data
 
 **CEO** (Petra Horáčková)
-- ✅ Agregované KPI a finanční přehledy
-- ❌ Osobní data klientů, detailní záznamy zaměstnanců
+- ✅ Aggregated KPIs and financial overview
+- ❌ Personal client data, detailed employee records
 
 ---
 
-### Testovací účty
+### Test accounts
 
-| Email | Role | Umístění |
+| Email | Role | Location |
 |---|---|---|
 | jana.novakova@banka-morava.cz | TELLER | Brno centrum |
 | lucie.svobodova@banka-morava.cz | BRANCH_MANAGER | Brno centrum |
 | pavel.horak@banka-morava.cz | REGIONAL_DIRECTOR | Region Morava |
-| tomas.vesely@banka-morava.cz | RISK_MANAGER | Ústředí |
-| alena.markova@banka-morava.cz | COMPLIANCE_OFFICER | Ústředí |
-| jana.prochazkova@banka-morava.cz | HR_MANAGER | Ústředí |
-| marie.kratochvilova@banka-morava.cz | HR_STAFF | Ústředí |
-| martin.novak@banka-morava.cz | CFO | Ústředí |
-| petra.horackova@banka-morava.cz | CEO | Ústředí |
+| tomas.vesely@banka-morava.cz | RISK_MANAGER | Headquarters |
+| alena.markova@banka-morava.cz | COMPLIANCE_OFFICER | Headquarters |
+| jana.prochazkova@banka-morava.cz | HR_MANAGER | Headquarters |
+| marie.kratochvilova@banka-morava.cz | HR_STAFF | Headquarters |
+| martin.novak@banka-morava.cz | CFO | Headquarters |
+| petra.horackova@banka-morava.cz | CEO | Headquarters |
 
 ---
 
-## Struktura projektu
+## Project Structure
 
 ```
 virtual_co/
 ├── api/
 │   ├── main.py                  # FastAPI backend
-│   ├── cli.py                   # CLI klient s historií
-│   ├── agent.py                 # Agent smyčka
-│   ├── langflow_setup.py        # Vytvoří flow v Langflow
-│   └── claude_cli_component.py  # Custom Langflow komponenta
+│   ├── cli.py                   # CLI client with conversation history
+│   ├── agent.py                 # Agent loop (Claude selects tools)
+│   ├── langflow_setup.py        # Creates flow in Langflow
+│   └── claude_cli_component.py  # Custom Langflow component
 └── db_demo/
-    ├── schema.sql               # DDL – 13 tabulek
-    ├── seed_banka_morava.sql    # Základní seed data
-    ├── seed_rozsireni.sql       # HR Staff, nové role
-    ├── seed_praha.sql           # Praha pobočky
-    └── schema_grafika.md        # Mermaid diagramy
+    ├── schema.sql               # DDL – 13 core tables
+    ├── schema_banking.sql       # DDL – banking tables + views
+    ├── seed_banka_morava.sql    # Base seed data
+    ├── seed_rozsireni.sql       # HR Staff, extended roles
+    ├── seed_praha.sql           # Prague branches
+    ├── seed_banking.sql         # Clients, accounts, transactions, loans
+    └── schema_grafika.md        # Mermaid diagrams
 ```
 
 ---
 
-## Klíčový princip
+## Key Principle
 
-> Access control musí proběhnout **před** tím, než LLM dostane data.
+> Access control must happen **before** the LLM receives any data.
 
-LLM není důvěryhodná entita — dostane jen bezpečná, filtrovaná, autorizovaná data.
+The LLM is not a trusted entity — it only receives safe, filtered, authorized data.
 
 ---
 
-## Tech stack
+## Tech Stack
 
 - **FastAPI** – backend, auth, RBAC
-- **PostgreSQL** – databáze s access rules
-- **Claude** – LLM přes `claude -p` (Max subscription)
-- **Langflow** – orchestrace agent flow
+- **PostgreSQL** – database with access rules and banking data
+- **Claude** – LLM via `claude -p` (Max subscription)
+- **Langflow** – agent flow orchestration
 - **uv** – Python package manager
 - **Docker** – PostgreSQL + Langflow
