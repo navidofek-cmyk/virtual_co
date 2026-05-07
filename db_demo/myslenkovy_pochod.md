@@ -1,213 +1,213 @@
-# Myšlenkový pochod – Private AI Agent Platform
+# Thought Process – Private AI Agent Platform
 
 ---
 
-## Odkud vycházíme (z meetingu s Jirkou)
+## Where We Start From (from the meeting with Jirka)
 
-Jirka to řekl jednoduše:
+Jirka put it simply:
 
 ```text
-Firmy budou mít svoje databáze, dokumentace, emaily.
-My se na ně napojíme.
-Ale zároveň musíme mít svoji vlastní databázi —
-kde víme, kdo je přihlášený, jaká má práva, co smí dělat.
+Companies will have their own databases, documentation, emails.
+We will connect to them.
+But at the same time we need our own database —
+where we know who is logged in, what permissions they have, what they are allowed to do.
 ```
 
 ---
 
-## Dva světy v jednom systému
+## Two Worlds in One System
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                                                     │
-│   NAŠE DATABÁZE              KLIENTOVA DATABÁZE    │
-│   (vždy stejná)              (každý má jinou)      │
+│   OUR DATABASE               CLIENT'S DATABASE     │
+│   (always the same)          (each client differs) │
 │                                                     │
-│   - kdo je uživatel          - výrobní data        │
-│   - jakou má roli            - transakce           │
-│   - co smí dělat             - dokumenty           │
-│   - audit logy               - emaily              │
-│   - konfigurace agentů       - vlastní systémy     │
+│   - who the user is          - production data     │
+│   - their role               - transactions        │
+│   - what they can do         - documents           │
+│   - audit logs               - emails              │
+│   - agent configuration      - their own systems   │
 │                                                     │
 │         ↓                         ↓                │
-│              AI Agent dostane                       │
-│         jen filtrovaná data z obou zdrojů          │
+│              AI Agent receives                      │
+│         only filtered data from both sources       │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Konkrétní příklady klientů (z meetingu)
+## Concrete Client Examples (from the meeting)
 
-### Raiffeisen banka
+### Raiffeisen Bank
 ```text
-Kdo se přihlásí?
-→ přepážkový pracovník, manažer pobočky, risk analytik, HR
+Who logs in?
+→ teller, branch manager, risk analyst, HR
 
-Co chce vědět?
-→ transakce svých klientů, reporty pobočky, rizikové analýzy
+What do they want to know?
+→ their clients' transactions, branch reports, risk analyses
 
-Co nesmí vidět?
-→ přepážková paní nesmí vidět mzdy kolegů
-→ manažer Brno nesmí vidět Prahu
+What must they not see?
+→ a teller must not see colleagues' salaries
+→ the Brno manager must not see Prague
 ```
 
-### Ocelárny
+### Steel Mill
 ```text
-Kdo se přihlásí?
-→ mistr výroby, technolog, obchodník, ředitel
+Who logs in?
+→ production foreman, technologist, salesperson, director
 
-Co chce vědět?
-→ stav výroby, objednávky, reklamace, kvalita materiálu
+What do they want to know?
+→ production status, orders, complaints, material quality
 
-Co nesmí vidět?
-→ mistr nesmí vidět obchodní smlouvy
-→ obchodník nesmí vidět náklady výroby
+What must they not see?
+→ the foreman must not see commercial contracts
+→ the salesperson must not see production costs
 ```
 
 ---
 
-## Naše databáze – co musí umět
+## Our Database – What It Must Be Able to Do
 
-### 1. Poznat uživatele
+### 1. Identify the User
 ```text
-Kdo jsi?
-→ email + heslo, nebo SSO (Microsoft, Google)
-→ z které firmy (organization)
-→ z jakého oddělení (department)
+Who are you?
+→ email + password, or SSO (Microsoft, Google)
+→ which company (organization)
+→ which department (department)
 ```
 
-### 2. Vědět co smí dělat
+### 2. Know What They Are Allowed to Do
 ```text
-Co smíš?
-→ spustit agenta? (agents.run)
-→ nahrát dokument? (documents.write)
-→ vidět analytiku? (analytics.read)
-→ spravovat uživatele? (users.manage)
+What can you do?
+→ run an agent? (agents.run)
+→ upload a document? (documents.write)
+→ view analytics? (analytics.read)
+→ manage users? (users.manage)
 ```
 
-### 3. Určit která data uvidí
+### 3. Determine Which Data They Will See
 ```text
-Která data dostane AI?
-→ jen transakce z pobočky Brno
-→ jen HR záznamy (bez mezd)
-→ jen výroba za poslední týden
+Which data does the AI receive?
+→ only transactions from the Brno branch
+→ only HR records (without salaries)
+→ only production from the past week
 ```
 
-### 4. Zapamatovat si vše co se stalo
+### 4. Remember Everything That Happened
 ```text
-Co se stalo?
-→ kdo se ptal
-→ na co se ptal
-→ co AI dostala
-→ co odpověděla
+What happened?
+→ who asked
+→ what they asked
+→ what the AI received
+→ what it replied
 ```
 
 ---
 
-## Jak to uživatel zažije (od babky za přepážkou)
+## How the User Experiences It (from the perspective of a teller at the counter)
 
 ```
-1. Přihlásí se
-   → zadá email a heslo
+1. They log in
+   → enter email and password
 
-2. Otevře agenta
-   → "FinanceBot" nebo "VýrobníBot"
+2. They open the agent
+   → "FinanceBot" or "ProductionBot"
 
-3. Napíše dotaz
-   → "Kolik transakcí jsem dnes vyřídila?"
+3. They type a query
+   → "How many transactions did I process today?"
 
-4. Systém za scénou
-   → ověří ji
-   → zjistí jaká má práva
-   → vytáhne jen její data z databáze
-   → pošle je agentovi
+4. The system behind the scenes
+   → verifies them
+   → determines their permissions
+   → pulls only their data from the database
+   → sends it to the agent
 
-5. Dostane odpověď
-   → "Dnes jsi vyřídila 12 transakcí."
+5. They receive an answer
+   → "You processed 12 transactions today."
 
-6. Žádná magie — jen bezpečná práce s daty
+6. No magic — just secure work with data
 ```
 
 ---
 
-## Co stavíme jako první (plán z meetingu)
+## What We Build First (plan from the meeting)
 
 ```
-KROK 1 – Databáze (teď)
-  PostgreSQL schéma
+STEP 1 – Database (now)
+  PostgreSQL schema
   organizations, users, roles, permissions
   agents, data_sources, data_access_rules
   audit_logs
 
-KROK 2 – Testovací data
-  Vymyslíme si firmu (třeba "Banka Morava")
-  Přidáme uživatele s různými rolemi
-  Přidáme data_access_rules
+STEP 2 – Test Data
+  We create a fictional company (e.g. "Banka Morava")
+  Add users with different roles
+  Add data_access_rules
 
-KROK 3 – Langflow
-  Zapojíme agenty
-  Napojíme na databázi přes bezpečné API
+STEP 3 – Langflow
+  Connect agents
+  Link to the database via a secure API
 
-KROK 4 – Testování lokálně
-  Jirkův Mac Pro přes SSH
+STEP 4 – Local Testing
+  Jirka's Mac Pro over SSH
 
-KROK 5 – Render
-  Nahrajeme do cloudu
-  Ukážeme klientům
+STEP 5 – Render
+  Deploy to the cloud
+  Show to clients
 ```
 
 ---
 
-## Otázky které musíme zodpovědět
+## Questions We Must Answer
 
 ```
-□ Jak přesně aplikovat row_filter pro každého uživatele?
-  → dynamicky podle user.branch_id?
-  → nebo staticky uložit v pravidle?
+□ How exactly to apply row_filter for each user?
+  → dynamically based on user.branch_id?
+  → or store statically in the rule?
 
-□ Co když má uživatel víc rolí?
-  → sečteme práva? nebo průnik?
-  → kdo vyhraje při konfliktu?
+□ What if a user has multiple roles?
+  → union of permissions? or intersection?
+  → who wins in case of conflict?
 
-□ Jak napojit Langflow na naši databázi bezpečně?
-  → přes FastAPI endpoint?
-  → nebo přímé připojení?
+□ How to connect Langflow to our database securely?
+  → via a FastAPI endpoint?
+  → or a direct connection?
 
-□ Jak poznat že uživatel patří ke správné firmě?
-  → organization_id musí být na každém dotazu
+□ How to verify that the user belongs to the correct company?
+  → organization_id must be present on every query
 
-□ Jak ukázat klientovi demo?
-  → testovací firma s reálně vypadajícími daty
-  → různé přihlašovací účty (teller, manažer, admin)
+□ How to show the client a demo?
+  → a test company with realistic-looking data
+  → multiple login accounts (teller, manager, admin)
 ```
 
 ---
 
-## Tým a role (z meetingu)
+## Team and Roles (from the meeting)
 
-| Člověk | Role | Zaměření |
+| Person | Role | Focus |
 |---|---|---|
-| Jirka Lamos | Lead / Architekt | celkový návrh, klienti, Rakousko |
-| Ivan (ty) | Developer | databáze, Python, backend |
-| Tony | Developer (Rakousko) | komponenty, testování |
+| Jirka Lamos | Lead / Architect | overall design, clients, Austria |
+| Ivan (you) | Developer | database, Python, backend |
+| Tony | Developer (Austria) | components, testing |
 
-**Komunikace:** angličtina (kvůli Tonymu)
-**Meetingy:** 2x týdně, 1,5 hodiny
-**Tempo:** ~10 dní na základní verzi
+**Communication:** English (because of Tony)
+**Meetings:** 2x per week, 1.5 hours
+**Pace:** ~10 days for the basic version
 
 ---
 
-## Klíčová myšlenka celého projektu
+## The Core Idea of the Entire Project
 
 ```text
-Firmy mají data.
-Firmy chtějí AI.
-Ale bojí se, že AI uvidí víc než má.
+Companies have data.
+Companies want AI.
+But they are afraid that AI will see more than it should.
 
-My jim dáme AI, která vidí přesně to co má —
-a nic víc.
+We give them an AI that sees exactly what it should —
+and nothing more.
 
-To je náš produkt.
+That is our product.
 ```

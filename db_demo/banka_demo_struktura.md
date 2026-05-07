@@ -1,108 +1,108 @@
-# Demo struktura – Banka Morava a.s.
+# Demo Structure – Banka Morava a.s.
 
-Simulace reálné banky pro testování Private AI Agent Platformy.
+Simulation of a real bank for testing the Private AI Agent Platform.
 
 ---
 
-## Organizační struktura banky
+## Organizational Structure of the Bank
 
 ```
-Banka Morava a.s. (Ústředí – Praha)
+Banka Morava a.s. (Headquarters – Prague)
 │
-├── Ústřední oddělení
+├── Central Departments
 │   ├── Risk Management
 │   ├── Compliance
 │   ├── HR
 │   ├── Finance & Controlling
 │   └── IT
 │
-├── Region Morava
-│   ├── Pobočka Brno – Centrum
-│   ├── Pobočka Brno – Královo Pole
-│   └── Pobočka Olomouc
+├── Region Moravia
+│   ├── Branch Brno – Centre
+│   ├── Branch Brno – Královo Pole
+│   └── Branch Olomouc
 │
-└── Region Čechy
-    ├── Pobočka Praha – Smíchov
-    └── Pobočka Praha – Vinohrady
+└── Region Bohemia
+    ├── Branch Prague – Smíchov
+    └── Branch Prague – Vinohrady
 ```
 
 ---
 
-## Zaměstnanci – kdo jsou a co dělají
+## Employees – Who They Are and What They Do
 
-### Ústředí
+### Headquarters
 
-| Jméno | Pozice | Oddělení | Přístup k datům |
+| Name | Position | Department | Data Access |
 |---|---|---|---|
-| Ing. Petra Horáčková | CEO | Board | agregované reporty všech regionů |
-| Mgr. Tomáš Veselý | Risk Manager | Risk | všechny transakce bez PII |
-| JUDr. Alena Marková | Compliance Officer | Compliance | audit logy, compliance reporty |
-| Bc. Jana Procházková | HR Manager | HR | všechny záznamy zaměstnanců |
-| Ing. Martin Novák | CFO | Finance | finanční výsledky všech poboček |
+| Ing. Petra Horáčková | CEO | Board | aggregated reports from all regions |
+| Mgr. Tomáš Veselý | Risk Manager | Risk | all transactions without PII |
+| JUDr. Alena Marková | Compliance Officer | Compliance | audit logs, compliance reports |
+| Bc. Jana Procházková | HR Manager | HR | all employee records |
+| Ing. Martin Novák | CFO | Finance | financial results from all branches |
 
 ---
 
-### Region Morava
+### Region Moravia
 
-| Jméno | Pozice | Pobočka | Přístup k datům |
+| Name | Position | Branch | Data Access |
 |---|---|---|---|
-| Ing. Pavel Horák | Regionální ředitel | Region Morava | všechny pobočky Moravy |
-| Bc. Lucie Svobodová | Branch Manager | Brno – Centrum | celá pobočka Brno Centrum |
-| Bc. Ondřej Beneš | Branch Manager | Brno – Kr. Pole | celá pobočka Brno Kr. Pole |
+| Ing. Pavel Horák | Regional Director | Region Moravia | all Moravia branches |
+| Bc. Lucie Svobodová | Branch Manager | Brno – Centre | entire Brno Centre branch |
+| Bc. Ondřej Beneš | Branch Manager | Brno – Kr. Pole | entire Brno Kr. Pole branch |
 
 ---
 
-### Přepážkoví pracovníci – Brno Centrum
+### Tellers – Brno Centre
 
-| Jméno | Pozice | Přístup k datům |
+| Name | Position | Data Access |
 |---|---|---|
-| Jana Nováková | Teller | jen své přidělené klienty |
-| Karel Dvořák | Teller | jen své přidělené klienty |
-| Eva Blahová | Senior Teller | svoji skupinu klientů + zastupování |
+| Jana Nováková | Teller | only their assigned clients |
+| Karel Dvořák | Teller | only their assigned clients |
+| Eva Blahová | Senior Teller | their client group + substitution coverage |
 
 ---
 
-## Role a jejich práva
+## Roles and Their Permissions
 
 ### TELLER
 ```text
-Může:
-  ✓ agents.run              – spustit agenta
-  ✓ documents.read          – číst dokumenty svých klientů
-  ✓ clients.read.own        – vidět své přidělené klienty
+Can:
+  ✓ agents.run              – run an agent
+  ✓ documents.read          – read their clients' documents
+  ✓ clients.read.own        – view their assigned clients
 
-Nemůže:
-  ✗ analytics.read          – žádné reporty
-  ✗ clients.read.branch     – ostatní klienty pobočky
-  ✗ users.manage            – správa uživatelů
-  ✗ audit.read              – audit logy
+Cannot:
+  ✗ analytics.read          – no reports
+  ✗ clients.read.branch     – other branch clients
+  ✗ users.manage            – user management
+  ✗ audit.read              – audit logs
 ```
 
 ### BRANCH_MANAGER
 ```text
-Může:
+Can:
   ✓ agents.run
   ✓ documents.read
-  ✓ clients.read.branch     – všichni klienti pobočky
-  ✓ analytics.read.branch   – reporty své pobočky
-  ✓ agents.configure        – nastavit agenty pro pobočku
+  ✓ clients.read.branch     – all branch clients
+  ✓ analytics.read.branch   – their branch reports
+  ✓ agents.configure        – configure agents for the branch
 
-Nemůže:
-  ✗ clients.read.region     – jiné pobočky
-  ✗ hr.read                 – HR záznamy
-  ✗ audit.read              – audit logy
-  ✗ finance.read            – finanční výsledky
+Cannot:
+  ✗ clients.read.region     – other branches
+  ✗ hr.read                 – HR records
+  ✗ audit.read              – audit logs
+  ✗ finance.read            – financial results
 ```
 
 ### REGIONAL_DIRECTOR
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ analytics.read.region   – reporty celého regionu
-  ✓ clients.read.region     – klienti celého regionu
+  ✓ analytics.read.region   – reports for the entire region
+  ✓ clients.read.region     – clients across the entire region
   ✓ agents.configure
 
-Nemůže:
+Cannot:
   ✗ hr.read
   ✗ audit.read
   ✗ finance.global
@@ -110,106 +110,106 @@ Nemůže:
 
 ### RISK_MANAGER
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ risk.read               – všechny transakce (bez jmen klientů)
-  ✓ analytics.read.global   – agregovaná data ze všech poboček
+  ✓ risk.read               – all transactions (without client names)
+  ✓ analytics.read.global   – aggregated data from all branches
   ✓ fraud.read              – fraud flags
 
-Nemůže:
-  ✗ clients.read            – žádná jména, žádné osobní údaje
+Cannot:
+  ✗ clients.read            – no names, no personal data
   ✗ hr.read
   ✗ users.manage
 ```
 
 ### COMPLIANCE_OFFICER
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ audit.read              – plný přístup k audit logům
-  ✓ documents.read.global   – všechny dokumenty
+  ✓ audit.read              – full access to audit logs
+  ✓ documents.read.global   – all documents
 
-Nemůže:
-  ✗ clients.read            – osobní data klientů
+Cannot:
+  ✗ clients.read            – client personal data
   ✗ finance.read
 ```
 
 ### HR_MANAGER
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ hr.read                 – všechny záznamy zaměstnanců
-  ✓ hr.write                – editace HR záznamů
-  ✓ users.manage.hr         – správa HR systému
+  ✓ hr.read                 – all employee records
+  ✓ hr.write                – editing HR records
+  ✓ users.manage.hr         – HR system management
 
-Nemůže:
-  ✗ clients.read            – klientská data
-  ✗ transactions.read       – transakce
+Cannot:
+  ✗ clients.read            – client data
+  ✗ transactions.read       – transactions
   ✗ audit.read
 ```
 
 ### CFO
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ finance.read.global     – finanční výsledky všech poboček
-  ✓ analytics.read.global   – agregované reporty
+  ✓ finance.read.global     – financial results from all branches
+  ✓ analytics.read.global   – aggregated reports
 
-Nemůže:
-  ✗ clients.read            – osobní data
-  ✗ hr.read                 – HR záznamy
+Cannot:
+  ✗ clients.read            – personal data
+  ✗ hr.read                 – HR records
   ✗ audit.read
 ```
 
 ### CEO
 ```text
-Může:
+Can:
   ✓ agents.run
-  ✓ analytics.read.global   – agregované výsledky
+  ✓ analytics.read.global   – aggregated results
   ✓ finance.read.global
 
-Nemůže:
-  ✗ clients.read            – osobní data klientů
-  ✗ hr.read                 – osobní záznamy zaměstnanců
-  ✗ audit.read              – audit jsou jen pro Compliance
+Cannot:
+  ✗ clients.read            – client personal data
+  ✗ hr.read                 – employee personal records
+  ✗ audit.read              – audit is for Compliance only
 ```
 
 ---
 
-## Co každý uvidí na stejný dotaz
+## What Each Role Sees for the Same Query
 
-Dotaz: **"Jaký byl obrat tento měsíc?"**
+Query: **"What was the turnover this month?"**
 
-| Kdo se ptá | Co dostane |
+| Who is asking | What they receive |
 |---|---|
-| Jana Nováková (Teller) | `Přístup zamítnut` |
-| Lucie Svobodová (Manager Brno) | Obrat pobočky Brno Centrum |
-| Pavel Horák (Region Morava) | Obrat všech moravských poboček |
-| Ing. Martin Novák (CFO) | Obrat celé banky + srovnání s loňskem |
-| Ing. Petra Horáčková (CEO) | Agregovaný přehled celé banky |
+| Jana Nováková (Teller) | `Access denied` |
+| Lucie Svobodová (Brno Manager) | Turnover for Brno Centre branch |
+| Pavel Horák (Region Moravia) | Turnover for all Moravian branches |
+| Ing. Martin Novák (CFO) | Bank-wide turnover + comparison with last year |
+| Ing. Petra Horáčková (CEO) | Aggregated overview of the entire bank |
 
 ---
 
-Dotaz: **"Kdo jsou naši nejhodnotnější klienti?"**
+Query: **"Who are our most valuable clients?"**
 
-| Kdo se ptá | Co dostane |
+| Who is asking | What they receive |
 |---|---|
-| Jana Nováková (Teller) | Její přidělení klienti |
-| Lucie Svobodová (Manager) | Top klienti pobočky |
-| Tomáš Veselý (Risk) | `Přístup zamítnut` (Risk nevidí PII) |
-| Martin Novák (CFO) | `Přístup zamítnut` (CFO nevidí klientská data) |
-| Alena Marková (Compliance) | `Přístup zamítnut` |
+| Jana Nováková (Teller) | Her assigned clients |
+| Lucie Svobodová (Manager) | Top clients of the branch |
+| Tomáš Veselý (Risk) | `Access denied` (Risk cannot see PII) |
+| Martin Novák (CFO) | `Access denied` (CFO cannot see client data) |
+| Alena Marková (Compliance) | `Access denied` |
 
 ---
 
-## SQL seed data pro demo
+## SQL Seed Data for Demo
 
 ```sql
--- Organizace
+-- Organization
 INSERT INTO organizations (id, name, slug) VALUES
   ('org-bm', 'Banka Morava a.s.', 'banka-morava');
 
--- Oddělení
+-- Departments
 INSERT INTO departments (id, organization_id, name) VALUES
   ('dep-retail',      'org-bm', 'Retail Banking'),
   ('dep-risk',        'org-bm', 'Risk Management'),
@@ -219,20 +219,20 @@ INSERT INTO departments (id, organization_id, name) VALUES
   ('dep-it',          'org-bm', 'IT'),
   ('dep-mgmt',        'org-bm', 'Management');
 
--- Role
+-- Roles
 INSERT INTO roles (id, name, description) VALUES
-  ('role-teller',    'TELLER',             'Přepážkový pracovník'),
-  ('role-sr-teller', 'SENIOR_TELLER',      'Senior přepážkový pracovník'),
-  ('role-manager',   'BRANCH_MANAGER',     'Manažer pobočky'),
-  ('role-regional',  'REGIONAL_DIRECTOR',  'Regionální ředitel'),
-  ('role-risk',      'RISK_MANAGER',       'Risk manažer'),
-  ('role-compliance','COMPLIANCE_OFFICER', 'Compliance officer'),
-  ('role-hr',        'HR_MANAGER',         'HR manažer'),
-  ('role-cfo',       'CFO',               'Finanční ředitel'),
-  ('role-ceo',       'CEO',               'Generální ředitel'),
-  ('role-admin',     'ADMIN',             'Systémový administrátor');
+  ('role-teller',    'TELLER',             'Teller'),
+  ('role-sr-teller', 'SENIOR_TELLER',      'Senior Teller'),
+  ('role-manager',   'BRANCH_MANAGER',     'Branch Manager'),
+  ('role-regional',  'REGIONAL_DIRECTOR',  'Regional Director'),
+  ('role-risk',      'RISK_MANAGER',       'Risk Manager'),
+  ('role-compliance','COMPLIANCE_OFFICER', 'Compliance Officer'),
+  ('role-hr',        'HR_MANAGER',         'HR Manager'),
+  ('role-cfo',       'CFO',               'Chief Financial Officer'),
+  ('role-ceo',       'CEO',               'Chief Executive Officer'),
+  ('role-admin',     'ADMIN',             'System Administrator');
 
--- Uživatelé
+-- Users
 INSERT INTO users (id, organization_id, department_id, email, full_name) VALUES
   ('u-novakova',  'org-bm', 'dep-retail',     'jana.novakova@banka-morava.cz',    'Jana Nováková'),
   ('u-dvorak',    'org-bm', 'dep-retail',     'karel.dvorak@banka-morava.cz',     'Karel Dvořák'),
@@ -245,7 +245,7 @@ INSERT INTO users (id, organization_id, department_id, email, full_name) VALUES
   ('u-novak-m',   'org-bm', 'dep-finance',    'martin.novak@banka-morava.cz',     'Martin Novák'),
   ('u-horackova', 'org-bm', 'dep-mgmt',       'petra.horackova@banka-morava.cz',  'Petra Horáčková');
 
--- Přiřazení rolí
+-- Role assignments
 INSERT INTO user_roles (user_id, role_id) VALUES
   ('u-novakova',   'role-teller'),
   ('u-dvorak',     'role-teller'),
@@ -258,24 +258,24 @@ INSERT INTO user_roles (user_id, role_id) VALUES
   ('u-novak-m',    'role-cfo'),
   ('u-horackova',  'role-ceo');
 
--- Datové zdroje
+-- Data sources
 INSERT INTO data_sources (id, organization_id, name, type) VALUES
-  ('ds-transactions', 'org-bm', 'Transakční databáze', 'postgresql'),
-  ('ds-clients',      'org-bm', 'Klientská databáze',  'postgresql'),
-  ('ds-hr',           'org-bm', 'HR systém',           'postgresql'),
-  ('ds-finance',      'org-bm', 'Finanční systém',     'postgresql'),
-  ('ds-documents',    'org-bm', 'Dokumentový server',  'sharepoint');
+  ('ds-transactions', 'org-bm', 'Transaction Database', 'postgresql'),
+  ('ds-clients',      'org-bm', 'Client Database',      'postgresql'),
+  ('ds-hr',           'org-bm', 'HR System',            'postgresql'),
+  ('ds-finance',      'org-bm', 'Financial System',     'postgresql'),
+  ('ds-documents',    'org-bm', 'Document Server',      'sharepoint');
 
 -- Data access rules
 INSERT INTO data_access_rules
   (organization_id, subject_type, subject_id, resource_type, resource_id, access_level, row_filter, column_filter)
 VALUES
-  -- Teller: jen vlastní klienti, bez citlivých sloupců
+  -- Teller: only their own clients, without sensitive columns
   ('org-bm', 'role', 'role-teller', 'data_source', 'ds-transactions', 'read',
    '{"assigned_teller": "{{user.id}}", "branch_id": "{{user.branch_id}}"}',
    '{"exclude": ["internal_score", "fraud_flag", "account_balance_total"]}'),
 
-  -- Branch Manager: celá pobočka
+  -- Branch Manager: entire branch
   ('org-bm', 'role', 'role-manager', 'data_source', 'ds-transactions', 'read',
    '{"branch_id": "{{user.branch_id}}"}',
    '{"exclude": ["fraud_flag"]}'),
@@ -284,21 +284,21 @@ VALUES
    '{"branch_id": "{{user.branch_id}}"}',
    '{}'),
 
-  -- Regional Director: celý region
+  -- Regional Director: entire region
   ('org-bm', 'role', 'role-regional', 'data_source', 'ds-transactions', 'read',
    '{"region_id": "{{user.region_id}}"}',
    '{"exclude": ["fraud_flag"]}'),
 
-  -- Risk Manager: vše, ale bez PII
+  -- Risk Manager: everything, but without PII
   ('org-bm', 'role', 'role-risk', 'data_source', 'ds-transactions', 'read',
    '{}',
    '{"exclude": ["client_name", "client_id", "iban", "birth_number"]}'),
 
-  -- Compliance: pouze audit logy
+  -- Compliance: audit logs only
   ('org-bm', 'role', 'role-compliance', 'data_source', 'ds-documents', 'read',
    '{}', '{}'),
 
-  -- HR: pouze HR systém
+  -- HR: HR system only
   ('org-bm', 'role', 'role-hr', 'data_source', 'ds-hr', 'read',
    '{}', '{}'),
 
@@ -306,40 +306,40 @@ VALUES
   ('org-bm', 'role', 'role-cfo', 'data_source', 'ds-finance', 'read',
    '{}', '{}'),
 
-  -- CEO: agregované reporty (finance + analytics, bez osobních dat)
+  -- CEO: aggregated reports (finance + analytics, without personal data)
   ('org-bm', 'role', 'role-ceo', 'data_source', 'ds-finance', 'read',
    '{}', '{"exclude": ["employee_salary", "client_name"]}');
 ```
 
 ---
 
-## Agent pro banku – co umí
+## The Bank Agent – What It Can Do
 
 ```text
 FinanceBot
 │
-├── Nástroje (tools)
-│   ├── query_transactions   – dotaz na transakce
-│   ├── query_clients        – dotaz na klienty
-│   ├── generate_report      – generování reportu
-│   ├── search_documents     – hledání v dokumentech
-│   └── query_analytics      – analytické dotazy
+├── Tools
+│   ├── query_transactions   – query transactions
+│   ├── query_clients        – query clients
+│   ├── generate_report      – generate a report
+│   ├── search_documents     – search documents
+│   └── query_analytics      – analytical queries
 │
-└── Co dostane závisí na tom, kdo se ptá
-    → backend aplikuje data_access_rules PŘED tím
-      než agent dostane jakákoliv data
+└── What the agent returns depends on who is asking
+    → the backend applies data_access_rules BEFORE
+      the agent receives any data
 ```
 
 ---
 
-## Shrnutí
+## Summary
 
 ```text
-Jedna banka.
-10 zaměstnanců.
-10 různých pohledů na data.
+One bank.
+10 employees.
+10 different views of the data.
 1 agent.
 
-Každý dostane přesně to, na co má právo.
-Nic víc.
+Everyone gets exactly what they are entitled to.
+Nothing more.
 ```

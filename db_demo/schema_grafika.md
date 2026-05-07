@@ -1,22 +1,22 @@
-# Grafická schémata – Private AI Agent Platform
+# Visual Diagrams – Private AI Agent Platform
 
 ---
 
-## 1. Celková architektura
+## 1. Overall Architecture
 
 ```mermaid
 graph TD
-    U([👤 Uživatel]) --> CLI[CLI / Browser]
+    U([👤 User]) --> CLI[CLI / Browser]
     CLI --> API[FastAPI Backend]
 
-    API --> AUTH{Autentizace}
-    AUTH -->|❌ zamítnut| ERR1[401 Unauthorized]
-    AUTH -->|✅ ok| RBAC{RBAC kontrola}
+    API --> AUTH{Authentication}
+    AUTH -->|❌ rejected| ERR1[401 Unauthorized]
+    AUTH -->|✅ ok| RBAC{RBAC check}
 
-    RBAC -->|❌ nemá právo| ERR2[403 Forbidden]
-    RBAC -->|✅ ok| FILTER[Filtrování dat]
+    RBAC -->|❌ no permission| ERR2[403 Forbidden]
+    RBAC -->|✅ ok| FILTER[Data Filtering]
 
-    FILTER --> AGENT[Agent smyčka]
+    FILTER --> AGENT[Agent loop]
     AGENT --> CLAUDE["🤖 Claude (claude -p)"]
     CLAUDE --> AGENT
 
@@ -27,90 +27,90 @@ graph TD
 
 ---
 
-## 2. Agent smyčka
+## 2. Agent Loop
 
 ```mermaid
 sequenceDiagram
-    participant U as Uživatel
+    participant U as User
     participant F as FastAPI
     participant A as Agent
     participant C as Claude CLI
-    participant T as Nástroje
+    participant T as Tools
 
-    U->>F: "Porovnej transakce a klienty"
-    F->>F: Ověř uživatele + práva
-    F->>A: dotaz + dostupné nástroje
+    U->>F: "Compare transactions and clients"
+    F->>F: Verify user + permissions
+    F->>A: query + available tools
 
-    A->>C: claude -p "Co potřebuješ zavolat?"
+    A->>C: claude -p "What do you need to call?"
     C-->>A: ["get_transactions", "get_clients"]
 
-    A->>T: volej get_transactions()
-    T-->>A: 247 transakcí, 4.2M Kč
+    A->>T: call get_transactions()
+    T-->>A: 247 transactions, 4.2M CZK
 
-    A->>T: volej get_clients()
-    T-->>A: ❌ Přístup zamítnut
+    A->>T: call get_clients()
+    T-->>A: ❌ Access denied
 
-    A->>C: claude -p "Odpověz s těmito daty"
-    C-->>A: "Transakce: 247... Klienti: přístup zamítnut"
+    A->>C: claude -p "Respond with this data"
+    C-->>A: "Transactions: 247... Clients: access denied"
 
-    A-->>F: odpověď
-    F->>F: ulož do agent_runs
-    F-->>U: odpověď
+    A-->>F: response
+    F->>F: save to agent_runs
+    F-->>U: response
 ```
 
 ---
 
-## 3. Přístupová kontrola
+## 3. Access Control
 
 ```mermaid
 flowchart LR
-    REQ([Dotaz]) --> A1{Má JWT token?}
-    A1 -->|ne| E1[❌ 401]
-    A1 -->|ano| A2{Má agents.run?}
-    A2 -->|ne| E2[❌ 403]
-    A2 -->|ano| A3{Má pravidlo\npro data source?}
-    A3 -->|ne| E3[❌ Přístup zamítnut]
-    A3 -->|ano| A4[Aplikuj row_filter\na column_filter]
-    A4 --> A5[Filtrovaná data\n→ Claude]
+    REQ([Query]) --> A1{Has JWT token?}
+    A1 -->|no| E1[❌ 401]
+    A1 -->|yes| A2{Has agents.run?}
+    A2 -->|no| E2[❌ 403]
+    A2 -->|yes| A3{Has rule\nfor data source?}
+    A3 -->|no| E3[❌ Access denied]
+    A3 -->|yes| A4[Apply row_filter\nand column_filter]
+    A4 --> A5[Filtered data\n→ Claude]
     A5 --> A6[(audit_log)]
-    A5 --> RES([✅ Odpověď])
+    A5 --> RES([✅ Response])
 ```
 
 ---
 
-## 4. Databázové schéma – podrobné
+## 4. Database Schema – Detailed
 
 ```mermaid
 erDiagram
-    organizations ||--o{ departments      : "má oddělení"
-    organizations ||--o{ users            : "má uživatele"
-    organizations ||--o{ agents           : "má agenty"
-    organizations ||--o{ data_sources     : "má zdroje dat"
-    organizations ||--o{ data_access_rules: "má přístupová pravidla"
-    organizations ||--o{ conversations    : "má konverzace"
-    organizations ||--o{ audit_logs       : "má audit logy"
+    organizations ||--o{ departments      : "has departments"
+    organizations ||--o{ users            : "has users"
+    organizations ||--o{ agents           : "has agents"
+    organizations ||--o{ data_sources     : "has data sources"
+    organizations ||--o{ data_access_rules: "has access rules"
+    organizations ||--o{ conversations    : "has conversations"
+    organizations ||--o{ audit_logs       : "has audit logs"
 
-    departments   ||--o{ users            : "obsahuje"
+    departments   ||--o{ users            : "contains"
 
-    users         ||--o{ user_roles       : "má role"
-    users         ||--o{ conversations    : "vede"
-    users         ||--o{ agent_runs       : "spouští"
-    users         ||--o{ audit_logs       : "generuje"
+    users         ||--o{ user_roles       : "has roles"
+    users         ||--o{ conversations    : "conducts"
+    users         ||--o{ agent_runs       : "triggers"
+    users         ||--o{ audit_logs       : "generates"
 
-    roles         ||--o{ user_roles       : "přiřazena uživatelům"
-    roles         ||--o{ role_permissions : "má oprávnění"
-    roles         ||--o{ data_access_rules: "řídí přístup"
+    roles         ||--o{ user_roles       : "assigned to users"
+    roles         ||--o{ role_permissions : "has permissions"
+    roles         ||--o{ data_access_rules: "controls access"
 
-    permissions   ||--o{ role_permissions : "patří rolím"
+    permissions   ||--o{ role_permissions : "belongs to roles"
 
-    agents        ||--o{ conversations    : "obsluhuje"
-    agents        ||--o{ agent_runs       : "spouští"
+    agents        ||--o{ conversations    : "serves"
+    agents        ||--o{ agent_runs       : "triggers"
 
-    conversations ||--o{ agent_runs       : "obsahuje zprávy"
+    conversations ||--o{ agent_runs       : "contains messages"
 
-    data_sources  ||--o{ data_access_rules: "chráněno pravidly"
+    data_sources  ||--o{ data_access_rules: "protected by rules"
 
-    agent_runs    ||--o{ agent_run_steps  : "má kroky"
+    agent_runs    ||--o{ agent_run_steps  : "has steps"
 
     organizations {
         text      id         PK
@@ -181,14 +181,14 @@ erDiagram
     data_access_rules {
         text    id              PK
         text    organization_id FK
-        text    subject_type    "user nebo role"
+        text    subject_type    "user or role"
         text    subject_id      FK
         text    resource_type   "data_source"
         text    resource_id     FK
         text    access_level    "read, write, none"
         jsonb   row_filter      "{branch_id: brno-centrum}"
         jsonb   column_filter   "{exclude: [salary, iban]}"
-        int     priority        "vyšší = silnější"
+        int     priority        "higher = stronger"
         timestamp created_at
     }
 
@@ -237,33 +237,33 @@ erDiagram
 
 ---
 
-## 5. Kdo co vidí
+## 5. Who Sees What
 
 ```mermaid
 graph LR
-    subgraph Ústředí
-        CEO --> F[💰 Finance agregát]
+    subgraph Headquarters
+        CEO --> F[💰 Finance aggregate]
         CFO --> F
-        HR --> H[👥 HR záznamy]
-        HR_S[HR Staff] --> H2[👥 HR bez mezd]
-        CMP[Compliance] --> AL[📋 Audit logy]
-        RSK[Risk] --> TX_ALL[📊 Transakce\nvšechny bez PII]
+        HR --> H[👥 HR records]
+        HR_S[HR Staff] --> H2[👥 HR without salaries]
+        CMP[Compliance] --> AL[📋 Audit logs]
+        RSK[Risk] --> TX_ALL[📊 Transactions\nall without PII]
     end
 
-    subgraph Region Morava
-        RD[Reg. ředitel] --> TX_REG[📊 Transakce\nMorava]
+    subgraph Region Moravia
+        RD[Regional director] --> TX_REG[📊 Transactions\nMoravia]
     end
 
-    subgraph Pobočka Brno
-        MGR[Manager] --> TX_BR[📊 Transakce\nBrno]
-        MGR --> CL_BR[👤 Klienti\nBrno]
-        TEL[Teller] --> TX_OWN[📊 Vlastní\nklienti]
+    subgraph Branch Brno
+        MGR[Manager] --> TX_BR[📊 Transactions\nBrno]
+        MGR --> CL_BR[👤 Clients\nBrno]
+        TEL[Teller] --> TX_OWN[📊 Own\nclients]
     end
 ```
 
 ---
 
-## 6. Soubory projektu
+## 6. Project Files
 
 ```mermaid
 graph TD
@@ -276,8 +276,8 @@ graph TD
 
     subgraph api
         M[main.py\nFastAPI]
-        C[cli.py\nCLI klient]
-        AG[agent.py\nAgent smyčka]
+        C[cli.py\nCLI client]
+        AG[agent.py\nAgent loop]
         LS[langflow_setup.py]
         CC[claude_cli_component.py]
         CF[config.json]

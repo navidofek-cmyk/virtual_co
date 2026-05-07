@@ -1,63 +1,63 @@
 # Access Control Architecture – AI Agent Platform
 
-## Vysvětlení pro babku za přepážkou
+## Explanation for the Bank Teller at the Counter
 
-Paní Marta pracuje 20 let v bance za přepážkou v Brně.
+Mrs. Marta has worked at a bank branch in Brno for 20 years.
 
-Ráno přijde do práce, zadá heslo do počítače — systém ví, že je to ona.
-Otevře se jí obrazovka **jen s jejími klienty** z brněnské pobočky.
-Praha tam není. Mzdové listy kolegů tam nejsou. Audit logy tam nejsou.
+She arrives at work in the morning, enters her password at the computer — the system knows it's her.
+Her screen opens showing **only her clients** from the Brno branch.
+Prague is not there. Her colleagues' payslips are not there. Audit logs are not there.
 
-Teď má banka nového pomocníka — **AI asistenta**. Paní Marta se ho může ptát:
-`"Kolik transakcí jsem dnes vyřídila?"`
+Now the bank has a new assistant — an **AI agent**. Mrs. Marta can ask it:
+`"How many transactions did I process today?"`
 
-AI asistent se zeptá systému — a systém mu dá **přesně ta samá data, která by viděla paní Marta na obrazovce**.
-Nic víc. Nic míň.
+The AI agent queries the system — and the system gives it **exactly the same data that Mrs. Marta would see on her screen**.
+Nothing more. Nothing less.
 
-Ředitel pobočky pan Novák se může zeptat:
-`"Jaký byl obrat pobočky tento týden?"`
+The branch director, Mr. Novák, can ask:
+`"What was the branch turnover this week?"`
 
-AI asistent mu odpoví — ale zobrazí **celou brněnskou pobočku**, protože pan Novák má na to právo.
-Praha mu ale taky neukáže. To je jiná pobočka.
+The AI agent will respond — but will show **the entire Brno branch**, because Mr. Novák has that right.
+But it won't show him Prague either. That's a different branch.
 
-**Klíčová myšlenka:** AI asistent je jako nový chytrý kolega.
-Vidí přesně to, co mu systém dovolí — ne víc, i kdyby se ptal sebelépe.
-
----
-
-## Vysvětlení pro malé dítě
-
-Představ si školní jídelnu.
-
-Každý žák dostane **průkazku**, na které je napsáno jeho jméno a třída.
-Paní kuchařka se podívá na průkazku a vydá mu **jen to, co mu patří** — jeho oběd, ne oběd spolužáka.
-
-Náš systém funguje stejně:
-
-- **průkazka** = přihlášení (kdo jsi)
-- **paní kuchařka** = backend (co smíš vidět)
-- **oběd** = data z databáze
-- **AI agent** = kamarád, kterému průkazku ukážeš — ale dostane jen tvůj oběd, ne oběd celé školy
-
-Paní kuchařka **nikdy** nevydá celý hrnec. Vždy jen to, co danému žákovi patří.
+**Key idea:** The AI agent is like a new smart colleague.
+It sees exactly what the system allows it to — no more, even if you ask it very cleverly.
 
 ---
 
-## Problém
+## Explanation for a Small Child
 
-Stejný agent, stejný dotaz:
+Imagine a school cafeteria.
+
+Every pupil gets a **card** with their name and class written on it.
+The cafeteria lady looks at the card and gives them **only what belongs to them** — their lunch, not their classmate's.
+
+Our system works the same way:
+
+- **card** = login (who you are)
+- **cafeteria lady** = backend (what you are allowed to see)
+- **lunch** = data from the database
+- **AI agent** = a friend you show your card to — but they only get your lunch, not the whole school's
+
+The cafeteria lady **never** hands out the entire pot. Always only what belongs to that particular pupil.
+
+---
+
+## The Problem
+
+Same agent, same query:
 
 ```text
-"Ukaž mi transakce za tento měsíc"
+"Show me transactions for this month"
 
-Teller       → vidí jen své klienty z Brna
-Manager      → vidí celou brněnskou pobočku
-Risk Analyst → vidí všechny transakce, ale bez jmen klientů
+Teller       → sees only their own clients from Brno
+Manager      → sees the entire Brno branch
+Risk Analyst → sees all transactions, but without client names
 ```
 
 ---
 
-# Schéma databázových vztahů
+# Database Relationship Schema
 
 ```
 ┌─────────────────┐       ┌─────────────────┐
@@ -118,7 +118,7 @@ Risk Analyst → vidí všechny transakce, ale bez jmen klientů
 
 ---
 
-## Schéma datových zdrojů
+## Data Sources Schema
 
 ```
 ┌──────────────────┐       ┌───────────────┐
@@ -134,7 +134,7 @@ Risk Analyst → vidí všechny transakce, ale bez jmen klientů
          ▲
          │
 ┌────────┴─────────┐
-│ data_access_rules│  ← propojuje uživatele/role s datovými zdroji
+│ data_access_rules│  ← links users/roles with data sources
 │──────────────────│
 │ subject (user/   │
 │         role)    │
@@ -146,28 +146,28 @@ Risk Analyst → vidí všechny transakce, ale bez jmen klientů
 
 ---
 
-## Schéma toku kontroly přístupu
+## Access Control Flow Schema
 
 ```
  REQUEST
     │
     ▼
-┌───────────┐   ne    ┌──────────┐
+┌───────────┐   no    ┌──────────┐
 │ Auth OK?  │────────►│  401     │
 └─────┬─────┘         └──────────┘
-      │ ano
+      │ yes
       ▼
-┌───────────────┐  ne  ┌──────────┐
+┌───────────────┐  no  ┌──────────┐
 │ agents.run    │──────►│  403     │
 │ permission?   │       └──────────┘
 └──────┬────────┘
-       │ ano
+       │ yes
        ▼
-┌───────────────────┐  ne  ┌──────────┐
+┌───────────────────┐  no  ┌──────────┐
 │ data_source rule  │──────►│  403     │
 │ exists?           │       └──────────┘
 └────────┬──────────┘
-         │ ano
+         │ yes
          ▼
 ┌──────────────────────┐
 │ apply row_filter     │  WHERE branch_id = 'brno_01'
@@ -181,15 +181,15 @@ Risk Analyst → vidí všechny transakce, ale bez jmen klientů
            │
            ▼
 ┌──────────────────────┐
-│ audit_log zápis      │
+│ audit_log write      │
 └──────────────────────┘
 ```
 
 ---
 
-# Tři úrovně kontroly
+# Three Levels of Control
 
-## Úroveň 1 — Smí vůbec použít agenta?
+## Level 1 — Is the user allowed to use the agent at all?
 
 ```text
 user → user_roles → roles → role_permissions → permissions
@@ -197,11 +197,11 @@ user → user_roles → roles → role_permissions → permissions
                                               agents.run ?
 ```
 
-Jednoduchý RBAC check před čímkoliv jiným.
+Simple RBAC check before anything else.
 
 ---
 
-## Úroveň 2 — Smí přistoupit k tomuto datovému zdroji?
+## Level 2 — Is the user allowed to access this data source?
 
 ```sql
 data_access_rules
@@ -212,11 +212,11 @@ data_access_rules
   access_level  = 'read' | 'write' | 'none'
 ```
 
-Teller nemá pravidlo pro HR data_source → přístup zamítnut.
+Teller has no rule for the HR data_source → access denied.
 
 ---
 
-## Úroveň 3 — Která konkrétní data vidí?
+## Level 3 — Which specific data does the user see?
 
 ```sql
 data_access_rules
@@ -224,53 +224,53 @@ data_access_rules
   column_filter = {"exclude": ["salary", "ssn", "account_number"]}
 ```
 
-Toto se přeloží na SQL podmínky **před** tím, než data jdou do LLM.
+This is translated into SQL conditions **before** the data is sent to the LLM.
 
 ---
 
-# Jak to backend aplikuje v praxi
+# How the Backend Applies This in Practice
 
 ```python
-# 1. Zjisti pravidla pro tohoto uživatele
+# 1. Retrieve rules for this user
 rules = get_access_rules(user_id, data_source_id)
 
-# 2. Postav bezpečný SQL dotaz
+# 2. Build a safe SQL query
 query = base_query
 if rules.row_filter:
     query = query.where(branch_id == user.branch_id)
 if rules.column_filter:
     query = query.exclude_columns(rules.column_filter)
 
-# 3. AŽ TEĎ pošli data do LLM
+# 3. ONLY NOW send the data to the LLM
 context = query.fetch()
 llm.ask(context, user_question)
 ```
 
-LLM nikdy nevidí dotaz bez filtrů — dostane jen hotová, ořezaná data.
+The LLM never sees an unfiltered query — it only receives ready, trimmed data.
 
 ---
 
-# Klíčová tabulka `data_access_rules`
+# The Key Table `data_access_rules`
 
 ```sql
 CREATE TABLE data_access_rules (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID REFERENCES organizations(id),
 
-    -- kdo
-    subject_type    TEXT NOT NULL,  -- 'user' nebo 'role'
+    -- who
+    subject_type    TEXT NOT NULL,  -- 'user' or 'role'
     subject_id      UUID NOT NULL,
 
-    -- co
+    -- what
     resource_type   TEXT NOT NULL,  -- 'data_source', 'table', 'document'
     resource_id     UUID NOT NULL,
 
-    -- jak
+    -- how
     access_level    TEXT NOT NULL,  -- 'read', 'write', 'none'
     row_filter      JSONB,          -- {"branch_id": "brno_01"}
     column_filter   JSONB,          -- {"exclude": ["salary"]}
 
-    priority        INT DEFAULT 0,  -- vyšší číslo = silnější pravidlo
+    priority        INT DEFAULT 0,  -- higher number = stronger rule
 
     created_at      TIMESTAMP DEFAULT now()
 );
@@ -278,22 +278,22 @@ CREATE TABLE data_access_rules (
 
 ---
 
-# Hierarchie pravidel
+# Rule Hierarchy
 
 ```text
-Konkrétnější pravidlo vždy vyhraje:
+More specific rule always wins:
 
-role=MANAGER    → vidí celou pobočku
-user=jan.novak  → speciálně omezen jen na risk data
+role=MANAGER    → sees the entire branch
+user=jan.novak  → specially restricted to risk data only
 
-Jan Novak dostane průnik obou pravidel.
+Jan Novak receives the intersection of both rules.
 ```
 
-Sloupec `priority` řeší konflikty — vyšší číslo vyhraje.
+The `priority` column resolves conflicts — higher number wins.
 
 ---
 
-# Příklad visibility matice
+# Example Visibility Matrix
 
 | Role | Sales Data | HR Data | Finance Data |
 |---|---|---|---|
@@ -304,9 +304,9 @@ Sloupec `priority` řeší konflikty — vyšší číslo vyhraje.
 
 ---
 
-# Audit logging
+# Audit Logging
 
-Každý dotaz musí zalogovat co LLM skutečně dostalo:
+Every query must log what the LLM actually received:
 
 ```json
 {
@@ -317,12 +317,12 @@ Každý dotaz musí zalogovat co LLM skutečně dostalo:
     "row_filter": {"branch_id": "brno_01"},
     "column_filter": {"excluded": ["salary"]}
   },
-  "prompt": "Ukaž mi transakce za tento měsíc",
+  "prompt": "Show me transactions for this month",
   "rows_returned": 47
 }
 ```
 
-Compliance tým vidí přesně — co LLM dostalo, ne jen že se někdo ptal.
+The compliance team sees exactly — what the LLM received, not just that someone asked.
 
 ```sql
 CREATE TABLE audit_logs (
@@ -339,36 +339,36 @@ CREATE TABLE audit_logs (
 
 ---
 
-# Celkový tok
+# Overall Flow
 
 ```text
 User asks AI Agent
         ↓
 Backend authenticates user
         ↓
-RBAC check — smí použít agenta? (úroveň 1)
+RBAC check — is the user allowed to use the agent? (level 1)
         ↓
-Data source check — smí přistoupit k zdroji? (úroveň 2)
+Data source check — is the user allowed to access the source? (level 2)
         ↓
-Row + column filtering — jaká data přesně? (úroveň 3)
+Row + column filtering — which exact data? (level 3)
         ↓
-Filtrovaná data → LLM
+Filtered data → LLM
         ↓
-Audit log — co dostalo, co vrátilo
+Audit log — what it received, what it returned
         ↓
 Response returned to user
 ```
 
 ---
 
-# Simulace zaměstnanců a jejich přístupu k agentovi
+# Employee Simulation and Their Access to the Agent
 
-Scénář: Banka Morava a.s., pobočka Brno a pobočka Praha.
-Agent: **FinanceBot** — odpovídá na dotazy o transakcích, klientech a reportech.
+Scenario: Banka Morava a.s., Brno branch and Prague branch.
+Agent: **FinanceBot** — answers questions about transactions, clients, and reports.
 
 ---
 
-## Zaměstnanec 1 — Jana Nováková, Teller, Brno
+## Employee 1 — Jana Nováková, Teller, Brno
 
 ```json
 {
@@ -380,7 +380,7 @@ Agent: **FinanceBot** — odpovídá na dotazy o transakcích, klientech a repor
 }
 ```
 
-**Práva:**
+**Permissions:**
 ```text
 agents.run          ✓
 documents.read      ✓
@@ -397,30 +397,30 @@ data_source: transactions_db
   access_level:  read
 ```
 
-**Dotaz agentovi:** `"Kolik transakcí proběhlo dnes?"`
+**Query to agent:** `"How many transactions were processed today?"`
 
-**Co agent dostane:**
+**What the agent receives:**
 ```sql
 SELECT COUNT(*) FROM transactions
 WHERE branch_id = 'brno_01'
   AND assigned_teller = 'jana.novakova'
   AND date = TODAY;
--- výsledek: 12 transakcí (jen její klienti)
+-- result: 12 transactions (her clients only)
 ```
 
-**Co agent odpoví:**
+**What the agent responds:**
 ```
-Dnes jsi zpracovala 12 transakcí.
+You processed 12 transactions today.
 ```
 
-**Co agent NEODPOVÍ** (nemá data):
+**What the agent will NOT respond** (no data):
 ```
-Celá pobočka Brno dnes zpracovala 847 transakcí.  ✗
+The entire Brno branch processed 847 transactions today.  ✗
 ```
 
 ---
 
-## Zaměstnanec 2 — Pavel Horák, Branch Manager, Brno
+## Employee 2 — Pavel Horák, Branch Manager, Brno
 
 ```json
 {
@@ -432,13 +432,13 @@ Celá pobočka Brno dnes zpracovala 847 transakcí.  ✗
 }
 ```
 
-**Práva:**
+**Permissions:**
 ```text
 agents.run          ✓
 documents.read      ✓
 analytics.read      ✓
-users.manage        ✗  ← nemůže spravovat HR
-audit.read          ✗  ← nemůže vidět audit logy
+users.manage        ✗  ← cannot manage HR
+audit.read          ✗  ← cannot see audit logs
 ```
 
 **Data access rules:**
@@ -453,24 +453,24 @@ data_source: analytics_db
   access_level:  read
 ```
 
-**Dotaz agentovi:** `"Jaký byl obrat pobočky tento týden?"`
+**Query to agent:** `"What was the branch turnover this week?"`
 
-**Co agent dostane:**
+**What the agent receives:**
 ```sql
 SELECT SUM(amount) FROM transactions
 WHERE branch_id = 'brno_01'
   AND date >= THIS_WEEK;
--- výsledek: 4 200 000 Kč (celá brněnská pobočka)
+-- result: 4,200,000 CZK (entire Brno branch)
 ```
 
-**Co agent NEODPOVÍ** (jiná pobočka):
+**What the agent will NOT respond** (different branch):
 ```
-Praha tento týden: 6 800 000 Kč  ✗
+Prague this week: 6,800,000 CZK  ✗
 ```
 
 ---
 
-## Zaměstnanec 3 — Martina Křížková, HR Specialistka
+## Employee 3 — Martina Křížková, HR Specialist
 
 ```json
 {
@@ -482,45 +482,45 @@ Praha tento týden: 6 800 000 Kč  ✗
 }
 ```
 
-**Práva:**
+**Permissions:**
 ```text
 agents.run          ✓
-documents.read      ✓  ← jen HR dokumenty
+documents.read      ✓  ← HR documents only
 analytics.read      ✗
-users.manage        ✓  ← jen HR záznamy
+users.manage        ✓  ← HR records only
 audit.read          ✗
 ```
 
 **Data access rules:**
 ```text
 data_source: hr_db
-  row_filter:    {}              ← vidí všechny zaměstnance
-  column_filter: {}              ← plný HR přístup
+  row_filter:    {}              ← sees all employees
+  column_filter: {}              ← full HR access
   access_level:  read
 
 data_source: transactions_db
-  access_level:  none            ← žádný přístup k transakcím
+  access_level:  none            ← no access to transactions
 ```
 
-**Dotaz agentovi:** `"Kolik zaměstnanců nastoupilo letos?"`
+**Query to agent:** `"How many employees joined this year?"`
 
-**Co agent dostane:**
+**What the agent receives:**
 ```sql
 SELECT COUNT(*) FROM employees
 WHERE hire_date >= '2026-01-01';
--- výsledek: 23 nových zaměstnanců
+-- result: 23 new employees
 ```
 
-**Dotaz agentovi:** `"Jaký byl obrat pobočky Praha?"`
+**Query to agent:** `"What was the Prague branch turnover?"`
 
-**Co agent odpoví:**
+**What the agent responds:**
 ```
-K tomuto dotazu nemáš přístup.
+You do not have access to this query.
 ```
 
 ---
 
-## Zaměstnanec 4 — Tomáš Veselý, Risk Analyst
+## Employee 4 — Tomáš Veselý, Risk Analyst
 
 ```json
 {
@@ -532,44 +532,44 @@ K tomuto dotazu nemáš přístup.
 }
 ```
 
-**Práva:**
+**Permissions:**
 ```text
 agents.run          ✓
 documents.read      ✓
-analytics.read      ✓  ← všechny pobočky
+analytics.read      ✓  ← all branches
 risk.read           ✓
-audit.read          ✗  ← stále ne
+audit.read          ✗  ← still no
 ```
 
 **Data access rules:**
 ```text
 data_source: transactions_db
-  row_filter:    {}                         ← všechny pobočky
+  row_filter:    {}                         ← all branches
   column_filter: { "exclude": ["client_name", "client_id", "iban"] }
   access_level:  read
 ```
 
-**Dotaz agentovi:** `"Které transakce jsou podezřelé?"`
+**Query to agent:** `"Which transactions are suspicious?"`
 
-**Co agent dostane:**
+**What the agent receives:**
 ```sql
 SELECT amount, type, fraud_flag, branch_id
 FROM transactions
 WHERE fraud_flag = true;
--- BEZ jmen klientů, BEZ IBAN
+-- WITHOUT client names, WITHOUT IBAN
 ```
 
-**Co agent odpoví:**
+**What the agent responds:**
 ```
-Nalezeno 7 podezřelých transakcí.
-Pobočka Brno: 3, Praha: 4.
-Průměrná částka: 280 000 Kč.
-(Jména klientů nejsou dostupná.)
+7 suspicious transactions found.
+Brno branch: 3, Prague: 4.
+Average amount: 280,000 CZK.
+(Client names are not available.)
 ```
 
 ---
 
-## Zaměstnanec 5 — Admin systému
+## Employee 5 — System Admin
 
 ```json
 {
@@ -579,10 +579,10 @@ Průměrná částka: 280 000 Kč.
 }
 ```
 
-**Práva:**
+**Permissions:**
 ```text
 agents.run          ✓
-agents.write        ✓  ← může konfigurovat agenty
+agents.write        ✓  ← can configure agents
 users.manage        ✓
 audit.read          ✓
 analytics.read      ✓
@@ -590,37 +590,37 @@ analytics.read      ✓
 
 **Data access rules:**
 ```text
-Všechny data_sources: access_level = read (plný přístup)
-Žádné row_filter ani column_filter
+All data_sources: access_level = read (full access)
+No row_filter or column_filter
 ```
 
-**Ale pozor:** Admin vidí data — neprovádí bankovní operace.
-Princip nejmenšího privilegia platí i pro adminy.
+**Note:** Admin can view data — but does not perform banking operations.
+The principle of least privilege applies to admins as well.
 
 ---
 
-## Srovnávací tabulka — stejný dotaz, různé odpovědi
+## Comparison Table — Same Query, Different Responses
 
-Dotaz: `"Kolik transakcí proběhlo tento týden?"`
+Query: `"How many transactions were processed this week?"`
 
-| Zaměstnanec | Role | Vidí |
+| Employee | Role | Sees |
 |---|---|---|
-| Jana Nováková | Teller | jen své transakce (12) |
-| Pavel Horák | Manager | celá pobočka Brno (847) |
-| Martina Křížková | HR | `403 – přístup zamítnut` |
-| Tomáš Veselý | Risk Analyst | všechny pobočky, bez jmen (2 341) |
-| Admin | Admin | vše (2 341 + detaily) |
+| Jana Nováková | Teller | only her transactions (12) |
+| Pavel Horák | Manager | entire Brno branch (847) |
+| Martina Křížková | HR | `403 – access denied` |
+| Tomáš Veselý | Risk Analyst | all branches, without names (2,341) |
+| Admin | Admin | everything (2,341 + details) |
 
 ---
 
-## Seed data pro testování
+## Seed Data for Testing
 
 ```sql
--- Organizace
+-- Organization
 INSERT INTO organizations (id, name, slug)
 VALUES ('org-001', 'Banka Morava a.s.', 'banka-morava');
 
--- Role
+-- Roles
 INSERT INTO roles (id, name) VALUES
   ('role-teller',   'TELLER'),
   ('role-manager',  'MANAGER'),
@@ -628,15 +628,15 @@ INSERT INTO roles (id, name) VALUES
   ('role-risk',     'RISK_ANALYST'),
   ('role-admin',    'ADMIN');
 
--- Uživatelé
+-- Users
 INSERT INTO users (id, organization_id, email, full_name) VALUES
   ('u-001', 'org-001', 'jana.novakova@banka-morava.cz',  'Jana Nováková'),
   ('u-002', 'org-001', 'pavel.horak@banka-morava.cz',    'Pavel Horák'),
   ('u-003', 'org-001', 'martina.krizkova@banka-morava.cz','Martina Křížková'),
   ('u-004', 'org-001', 'tomas.vesely@banka-morava.cz',   'Tomáš Veselý'),
-  ('u-005', 'org-001', 'admin@banka-morava.cz',          'Systémový Admin');
+  ('u-005', 'org-001', 'admin@banka-morava.cz',          'System Admin');
 
--- Přiřazení rolí
+-- Role assignments
 INSERT INTO user_roles (user_id, role_id) VALUES
   ('u-001', 'role-teller'),
   ('u-002', 'role-manager'),
@@ -648,35 +648,35 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 INSERT INTO data_access_rules
   (organization_id, subject_type, subject_id, resource_type, resource_id, access_level, row_filter, column_filter)
 VALUES
-  -- Jana: jen své transakce
+  -- Jana: her transactions only
   ('org-001', 'user', 'u-001', 'data_source', 'ds-transactions', 'read',
    '{"branch_id": "brno_01", "assigned_teller": "u-001"}',
    '{"exclude": ["internal_score", "fraud_flag"]}'),
 
-  -- Manager role: celá pobočka (aplikuje se přes roli)
+  -- Manager role: entire branch (applied via role)
   ('org-001', 'role', 'role-manager', 'data_source', 'ds-transactions', 'read',
    '{"branch_id": "{{user.branch_id}}"}',
    '{"exclude": ["fraud_flag"]}'),
 
-  -- HR: jen HR databáze
+  -- HR: HR database only
   ('org-001', 'role', 'role-hr', 'data_source', 'ds-hr', 'read', '{}', '{}'),
 
-  -- Risk Analyst: vše, ale bez PII
+  -- Risk Analyst: everything, but without PII
   ('org-001', 'role', 'role-risk', 'data_source', 'ds-transactions', 'read',
    '{}',
    '{"exclude": ["client_name", "client_id", "iban"]}'),
 
-  -- Admin: plný přístup
+  -- Admin: full access
   ('org-001', 'role', 'role-admin', 'data_source', 'ds-transactions', 'read', '{}', '{}'),
   ('org-001', 'role', 'role-admin', 'data_source', 'ds-hr',           'read', '{}', '{}');
 ```
 
 ---
 
-# Klíčový princip
+# Key Principle
 
 ```text
-Access control musí proběhnout PŘED tím, než LLM dostane data.
+Access control must happen BEFORE the LLM receives the data.
 ```
 
-LLM není důvěryhodná entita — je to výstupní vrstva, ne rozhodovací.
+The LLM is not a trusted entity — it is the output layer, not the decision-making layer.
