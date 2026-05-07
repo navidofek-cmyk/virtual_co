@@ -8,19 +8,14 @@ import sys
 
 API = "http://localhost:8000"
 
-UZIVATELE = {
-    "1":  ("Jana Nováková",       "jana.novakova@banka-morava.cz"),
-    "2":  ("Karel Dvořák",        "karel.dvorak@banka-morava.cz"),
-    "3":  ("Eva Blahová",         "eva.blahova@banka-morava.cz"),
-    "4":  ("Lucie Svobodová",     "lucie.svobodova@banka-morava.cz"),
-    "5":  ("Pavel Horák",         "pavel.horak@banka-morava.cz"),
-    "6":  ("Tomáš Veselý",        "tomas.vesely@banka-morava.cz"),
-    "7":  ("Alena Marková",       "alena.markova@banka-morava.cz"),
-    "8":  ("Jana Procházková",    "jana.prochazkova@banka-morava.cz"),
-    "9":  ("Marie Kratochvílová", "marie.kratochvilova@banka-morava.cz"),
-    "10": ("Martin Novák",        "martin.novak@banka-morava.cz"),
-    "11": ("Petra Horáčková",     "petra.horackova@banka-morava.cz"),
-}
+
+def nacti_uzivatele() -> list:
+    try:
+        r = httpx.get(f"{API}/users/list", timeout=5)
+        return r.json()
+    except Exception:
+        print("API není dostupné. Spusť: uv run python -m uvicorn main:app --port 8000")
+        sys.exit(1)
 
 
 def prihlasit(email: str):
@@ -33,14 +28,20 @@ def prihlasit(email: str):
 
 
 def hlavni():
-    print("\n╔══ Banka Morava – FinanceBot ═══════════════════╗")
-    print("║  Přihlas se jako:                              ║")
-    for k, (jmeno, _) in UZIVATELE.items():
-        print(f"║  {k:>2}. {jmeno:<36}║")
-    print("╚════════════════════════════════════════════════╝")
+    uzivatele = nacti_uzivatele()
+
+    print("\n╔══ Banka Morava – FinanceBot ══════════════════════════════════╗")
+    print(f"║  {'#':>2}  {'Jméno':<25} {'Role':<20} {'Umístění':<12}║")
+    print("╠═══════════════════════════════════════════════════════════════╣")
+    for i, u in enumerate(uzivatele, 1):
+        print(f"║  {i:>2}. {u['full_name']:<25} {u['role']:<20} {u['umisteni']:<12}║")
+    print("╚═══════════════════════════════════════════════════════════════╝")
 
     volba = input("\nZadej číslo (nebo email): ").strip()
-    email = UZIVATELE[volba][1] if volba in UZIVATELE else volba
+    try:
+        email = uzivatele[int(volba) - 1]["email"]
+    except (ValueError, IndexError):
+        email = volba
 
     token, user = prihlasit(email)
 

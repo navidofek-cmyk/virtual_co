@@ -181,6 +181,38 @@ def login(body: LoginRequest):
                                       "region": user["region_id"]}}
 
 
+@app.get("/users/list")
+def list_users():
+    """Veřejný seznam zaměstnanců pro CLI přihlášení."""
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("""
+        SELECT u.full_name, u.email, r.name as role,
+               COALESCE(u.branch_id, u.region_id, 'ústředí') as umisteni
+        FROM users u
+        JOIN user_roles ur ON u.id = ur.user_id
+        JOIN roles r ON ur.role_id = r.id
+        WHERE u.is_active = true
+        ORDER BY
+            CASE r.name
+                WHEN 'CEO'                THEN 1
+                WHEN 'CFO'                THEN 2
+                WHEN 'REGIONAL_DIRECTOR'  THEN 3
+                WHEN 'BRANCH_MANAGER'     THEN 4
+                WHEN 'COMPLIANCE_OFFICER' THEN 5
+                WHEN 'RISK_MANAGER'       THEN 6
+                WHEN 'HR_MANAGER'         THEN 7
+                WHEN 'HR_STAFF'           THEN 8
+                WHEN 'SENIOR_TELLER'      THEN 9
+                WHEN 'TELLER'             THEN 10
+                ELSE 11
+            END, u.full_name
+    """)
+    users = cur.fetchall()
+    db.close()
+    return users
+
+
 @app.get("/me")
 def me(user=Depends(current_user)):
     return {"name": user["full_name"], "email": user["email"],
