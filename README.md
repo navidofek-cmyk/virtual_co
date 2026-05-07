@@ -83,17 +83,88 @@ uv run python agent.py
 
 21 zaměstnanců, 5 poboček, 11 rolí.
 
-| Email | Role | Vidí |
+---
+
+### Kdo má přístup kam
+
+> 🟢 plný přístup &nbsp; 🟡 částečný / maskovaný &nbsp; 🔴 zakázáno
+
+| Role | Klienti | Účty | Transakce | Úvěry | HR | Finance | Audit |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **TELLER** | 🟡 vlastní | 🟡 maskovaně | 🟡 omezeno | 🔴 | 🔴 | 🔴 | 🔴 |
+| **BRANCH_MANAGER** | 🟡 pobočka | 🟢 pobočka | 🟢 pobočka | 🔴 | 🔴 | 🟡 pobočka | 🔴 |
+| **REGIONAL_DIRECTOR** | 🟡 region | 🟢 region | 🟢 region | 🔴 | 🔴 | 🟡 region | 🔴 |
+| **RISK_MANAGER** | 🔴 bez PII | 🟡 bez PII | 🟢 bez PII | 🟢 scoring | 🔴 | 🔴 | 🔴 |
+| **COMPLIANCE_OFFICER** | 🟡 KYC/AML | 🔴 | 🟡 podezřelé | 🔴 | 🔴 | 🔴 | 🟢 |
+| **HR_MANAGER** | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 vše | 🔴 | 🔴 |
+| **HR_STAFF** | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 bez mezd | 🔴 | 🔴 |
+| **CFO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 vše | 🔴 |
+| **CEO** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 agregát | 🔴 |
+| **ADMIN** | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 systém |
+
+---
+
+### Co přesně každá role vidí
+
+**TELLER** (Jana Nováková, Karel Dvořák)
+- ✅ Základní info o svých přidělených klientech
+- ✅ Stav účtu maskovaně (číslo účtu skryto)
+- ✅ Transakce pouze svých klientů
+- ❌ Rodné číslo, celá transakční historie, jiní klienti
+
+**BRANCH_MANAGER** (Lucie Svobodová – Brno)
+- ✅ Všichni klienti své pobočky
+- ✅ Přehledy a reporty celé pobočky
+- ✅ Výkon svého týmu
+- ❌ Jiné pobočky, HR záznamy, mzdy
+
+**REGIONAL_DIRECTOR** (Pavel Horák – Morava)
+- ✅ Agregované přehledy celého regionu
+- ✅ Výkon všech poboček v regionu
+- ❌ Detailní data klientů, jiný region
+
+**RISK_MANAGER** (Tomáš Veselý)
+- ✅ Všechny transakce celé banky
+- ✅ Fraud score, rizikové profily, scoring úvěrů
+- ❌ Jméno klienta, číslo účtu, IBAN (vše maskováno)
+
+**COMPLIANCE_OFFICER** (Alena Marková)
+- ✅ KYC/AML status klientů
+- ✅ Podezřelé transakce pro AML
+- ✅ Plný přístup k audit logům
+- ❌ Běžné transakce, zůstatky
+
+**HR_MANAGER** (Jana Procházková)
+- ✅ Kompletní záznamy všech zaměstnanců včetně mezd
+- ❌ Jakákoliv klientská nebo finanční data
+
+**HR_STAFF** (Marie Kratochvílová)
+- ✅ Základní HR záznamy, docházka, kontakty
+- ❌ Mzdy, bonusy, hodnocení výkonu
+
+**CFO** (Martin Novák)
+- ✅ Finanční výsledky celé banky, všechny pobočky
+- ❌ Osobní data klientů ani zaměstnanců
+
+**CEO** (Petra Horáčková)
+- ✅ Agregované KPI a finanční přehledy
+- ❌ Osobní data klientů, detailní záznamy zaměstnanců
+
+---
+
+### Testovací účty
+
+| Email | Role | Umístění |
 |---|---|---|
-| jana.novakova@banka-morava.cz | TELLER | vlastní transakce |
-| lucie.svobodova@banka-morava.cz | BRANCH_MANAGER | celá pobočka Brno |
-| pavel.horak@banka-morava.cz | REGIONAL_DIRECTOR | region Morava |
-| tomas.vesely@banka-morava.cz | RISK_MANAGER | vše bez PII |
-| alena.markova@banka-morava.cz | COMPLIANCE_OFFICER | audit logy |
-| jana.prochazkova@banka-morava.cz | HR_MANAGER | plná HR data |
-| marie.kratochvilova@banka-morava.cz | HR_STAFF | HR bez mezd |
-| martin.novak@banka-morava.cz | CFO | finanční výsledky |
-| petra.horackova@banka-morava.cz | CEO | agregovaný přehled |
+| jana.novakova@banka-morava.cz | TELLER | Brno centrum |
+| lucie.svobodova@banka-morava.cz | BRANCH_MANAGER | Brno centrum |
+| pavel.horak@banka-morava.cz | REGIONAL_DIRECTOR | Region Morava |
+| tomas.vesely@banka-morava.cz | RISK_MANAGER | Ústředí |
+| alena.markova@banka-morava.cz | COMPLIANCE_OFFICER | Ústředí |
+| jana.prochazkova@banka-morava.cz | HR_MANAGER | Ústředí |
+| marie.kratochvilova@banka-morava.cz | HR_STAFF | Ústředí |
+| martin.novak@banka-morava.cz | CFO | Ústředí |
+| petra.horackova@banka-morava.cz | CEO | Ústředí |
 
 ---
 
